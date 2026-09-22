@@ -1,4 +1,4 @@
-# Labyrinth en Q-Learning
+# Labyrinth 3x3 Q-Learning
 
 ## Les fichiers
  
