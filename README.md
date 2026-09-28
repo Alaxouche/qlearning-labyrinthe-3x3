@@ -2,30 +2,45 @@
 
 ## Les fichiers
  
-- `apprentissage.py` : l'entraînement. Il affiche le tableau Q, le chemin trouvé, puis deux graphiques (nombre de pas par épisode et évolution d'epsilon).
+- `labyrinthe.py` : la classe `Labyrinthe` (l'environnement). C'est le labyrinthe simple sans mur ni feu, et le modèle à suivre pour les autres.
+- `apprentissage.py` : la classe `QLearning` (l'apprentissage). Elle marche avec n'importe quel labyrinthe. Lancé directement, il affiche le tableau Q et le chemin trouvé.
 - `simulation.py` : une petite fenêtre Tkinter où on voit l'agent entraîné suivre son chemin, case par case.
 
+Les paramètres se donnent à la création de l'objet `QLearning`, par exemple `QLearning(lab, nb_episodes=2000, max_pas=200)`. Ceux qu'on ne donne pas gardent leur valeur par défaut :
 
 | Paramètre | Valeur | Rôle |
 |---|---|---|
-| `ALPHA` | 0.1 | vitesse d'apprentissage |
-| `GAMMA` | 0.9 | importance des récompenses futures |
-| `EPSILON_DEBUT` | 1.0 | exploration au début |
-| `EPSILON_MIN` | 0.05 | exploration minimale |
-| `DECROISSANCE` | 0.99 | vitesse de baisse d'epsilon |
-| `NB_EPISODES` | 500 | nombre de parties d'entraînement |
-| `MAX_PAS` | 50 | nombre de pas maximum par partie |
-| `GRAINE` | 0 | pour avoir les mêmes résultats à chaque lancement |
+| `alpha` | 0.1 | vitesse d'apprentissage |
+| `gamma` | 0.9 | importance des récompenses futures |
+| `epsilon_debut` | 1.0 | exploration au début |
+| `epsilon_min` | 0.05 | exploration minimale |
+| `decroissance` | 0.99 | vitesse de baisse d'epsilon |
+| `nb_episodes` | 500 | nombre de parties d'entraînement |
+| `max_pas` | 50 | nombre de pas maximum par partie |
+| `graine` | 0 | pour avoir les mêmes résultats à chaque lancement |
+
+Un grand labyrinthe demande plus d'épisodes et plus de pas par partie.
+
+## Ajouter un labyrinthe
+
+On crée une classe fille de `Labyrinthe`. La classe `QLearning` n'utilise que :
+
+- les attributs `taille`, `nb_etats`, `depart`, `arrivee`, `actions`, `noms_actions` ;
+- les méthodes `etat_suivant(etat, action)` (la case où l'on arrive) et `recompense(etat)` (la récompense en arrivant sur cette case).
+
+La simulation utilise en plus les listes `murs` et `feux` (numéros de cases) pour les colorier.
+
+Ensuite, il suffit de changer les deux lignes `lab = ...` et `qlearning = ...` en bas de `apprentissage.py` et en haut de `simulation.py`.
 
 ## Lancer le projet
  
-Il faut Python 3 avec `numpy` et `matplotlib` (Tkinter est fourni avec Python).
+Il faut Python 3 avec `numpy` (Tkinter est fourni avec Python).
  
 ```
-pip install numpy matplotlib
+pip install numpy
 ```
  
-Pour l'entraînement et les graphiques :
+Pour l'entraînement :
  
 ```
 python apprentissage.py
@@ -57,7 +72,3 @@ Pour ne pas rester bloqué sur ses premières idées, l'agent explore parfois au
 ## Résultat
  
 Après 500 épisodes, l'agent trouve un chemin de 4 pas, le plus court possible, par exemple `0 -> 3 -> 4 -> 5 -> 8`. Dans la simulation, le score final est de 0.7 (trois pas à -0.1, puis +1 à l'arrivée).
- 
-![Courbe d'apprentissage](courbe.png)
- 
-Sur la courbe, on voit l'agent mettre jusqu'à 50 pas lors des premiers épisodes, puis se stabiliser autour de 4 pas.

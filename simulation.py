@@ -1,13 +1,19 @@
 import tkinter as tk
 
-import apprentissage as ap
+from apprentissage import QLearning
+from labyrinthe import Labyrinthe
 
-TAILLE_CASE = 100
+# Pour changer de labyrinthe, il suffit de changer ces deux lignes
+lab = Labyrinthe(3)
+qlearning = QLearning(lab)
+
+TAILLE_FENETRE = 450  # en pixels, les cases s'adaptent a la taille du labyrinthe
+TAILLE_CASE = TAILLE_FENETRE // lab.taille
 DELAI = 400  # millisecondes entre deux pas
 
-Q, _, _ = ap.apprendre()
+qlearning.apprendre()
 
-etat = ap.DEPART
+etat = lab.depart
 nb_pas = 0
 score = 0.0
 en_marche = False
@@ -16,14 +22,18 @@ en_marche = False
 def dessiner():
     canevas.delete("all")
 
-    for case in range(ap.NB_ETATS):
-        ligne, colonne = divmod(case, ap.TAILLE)
+    for case in range(lab.nb_etats):
+        ligne, colonne = divmod(case, lab.taille)
         x, y = colonne * TAILLE_CASE, ligne * TAILLE_CASE
 
-        if case == ap.DEPART:
+        if case == lab.depart:
             couleur = "#c8e6c9"
-        elif case == ap.ARRIVEE:
+        elif case == lab.arrivee:
             couleur = "#ffe082"
+        elif case in lab.murs:
+            couleur = "#424242"
+        elif case in lab.feux:
+            couleur = "#ef5350"
         else:
             couleur = "white"
 
@@ -31,10 +41,11 @@ def dessiner():
                                  fill=couleur, outline="gray")
         canevas.create_text(x + 14, y + 14, text=str(case), fill="gray")
 
-    ligne, colonne = divmod(etat, ap.TAILLE)
+    ligne, colonne = divmod(etat, lab.taille)
     x = colonne * TAILLE_CASE + TAILLE_CASE / 2
     y = ligne * TAILLE_CASE + TAILLE_CASE / 2
-    canevas.create_oval(x - 22, y - 22, x + 22, y + 22, fill="#1976d2")
+    rayon = TAILLE_CASE / 4
+    canevas.create_oval(x - rayon, y - rayon, x + rayon, y + rayon, fill="#1976d2")
 
     info.set("état : {}    pas : {}    score : {:.1f}".format(etat, nb_pas, score))
 
@@ -45,13 +56,13 @@ def avancer():
     if not en_marche:
         return
 
-    etat = ap.etat_suivant(etat, ap.meilleure_action(Q, etat))
+    etat = lab.etat_suivant(etat, qlearning.meilleure_action(etat))
     nb_pas += 1
-    score += ap.recompense(etat)
+    score += lab.recompense(etat)
     dessiner()
 
     # On s'arrete a l'arrivee, ou si l'agent tourne en rond trop longtemps
-    if etat == ap.ARRIVEE or nb_pas >= ap.MAX_PAS:
+    if etat == lab.arrivee or nb_pas >= qlearning.max_pas:
         en_marche = False
     else:
         fenetre.after(DELAI, avancer)
@@ -60,7 +71,7 @@ def avancer():
 def demarrer():
     global en_marche
 
-    if not en_marche and etat != ap.ARRIVEE:
+    if not en_marche and etat != lab.arrivee:
         en_marche = True
         avancer()
 
@@ -69,14 +80,14 @@ def recommencer():
     global etat, nb_pas, score, en_marche
 
     en_marche = False
-    etat, nb_pas, score = ap.DEPART, 0, 0.0
+    etat, nb_pas, score = lab.depart, 0, 0.0
     dessiner()
 
 
 fenetre = tk.Tk()
 fenetre.title("Q-learning labyrinthe")
 
-cote = ap.TAILLE * TAILLE_CASE
+cote = lab.taille * TAILLE_CASE
 canevas = tk.Canvas(fenetre, width=cote, height=cote)
 canevas.pack()
 
