@@ -2,14 +2,15 @@
 
 Depuis la racine du projet :
     py -m experiences.q_learning_tabulaire.entrainement
+    py -m experiences.q_learning_tabulaire.entrainement --visuel
 """
 
 from src.environnements.labyrinthe import Labyrinthe
 from src.algorithmes.tabulaire.q_learning import QLearning
 
 
-def main():
-    """Construit et entraîne un agent sur un labyrinthe 3 x 3."""
+def main(visuel=False):
+    """Construit l'agent ; entraîne normalement ou ouvre le suivi Tkinter."""
 
     # 1. Création de l'environnement dans lequel l'agent va apprendre.
     lab = Labyrinthe(taille=3)
@@ -27,12 +28,19 @@ def main():
         max_pas=30
     )
 
-    # 3. Entraînement : cette méthode modifie progressivement agent.Q.
-    agent.apprendre()
+    # 3. Un seul jeu d'hyperparamètres pour les deux modes.
+    if visuel:
+        # La fenêtre gère elle-même les pas de l'entraînement en direct.
+        from src.visualisation.simulation_labyrinthe import lancer_simulation
+        lancer_simulation(lab, agent)
+    else:
+        # Mode classique, sans interface graphique.
+        agent.apprendre()
 
     # Permet de récupérer l'agent entraîné si main() est appelée ailleurs.
     return agent
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    main(visuel="--visuel" in sys.argv)
