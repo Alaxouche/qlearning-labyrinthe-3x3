@@ -29,7 +29,7 @@ Les répertoires Python utilisent les *namespace packages* de Python 3 : des fic
 
 ## Première phase : Q-learning tabulaire
 
-L'environnement initial est un labyrinthe carré **3 × 3, sans mur ni feu**. L'agent part de la case 0, cherche la dernière case et peut tenter de se déplacer en haut, en bas, à gauche ou à droite. Une action qui sort de la grille laisse l'agent sur place.
+L'environnement initial est un labyrinthe carré **3 × 3, sans mur ni feu**. L'agent part de la case 0, cherche la dernière case et peut tenter de se déplacer en haut, en bas, à gauche ou à droite. Les actions qui sortent de la grille sont exclues de la liste des actions possibles : l'agent ne peut pas les choisir.
 
 | Événement | Récompense |
 |---|---:|
@@ -44,7 +44,7 @@ Q(s,a) <- Q(s,a) + alpha * (r + gamma * max_a' Q(s',a') - Q(s,a))
 
 L'état final n'a pas de valeur future. La sélection des actions utilise une stratégie **epsilon-greedy** avec décroissance de l'exploration.
 
-Paramètres par défaut : `alpha=0.1`, `gamma=0.9`, `epsilon_debut=1.0`, `epsilon_min=0.05`, `decroissance=0.99`, `nb_episodes=500`, `max_pas=50`, `graine=0`. Ils sont modifiables lors de l'instanciation de `QLearning`.
+Les hyperparamètres sont indiqués explicitement dans chaque script d'expérience (et non fixés par défaut dans la classe `QLearning`). Dans cet exemple : `alpha=0.1`, `gamma=0.9`, `epsilon=1.0`, `epsilon_min=0.05`, `decroissance=0.99`, `nb_episodes=1000` et `max_pas=30`. L'environnement fournit `nb_etats`, `nb_actions`, `reset()`, `actions_possibles(etat)` et `step(action)`.
 
 ## Installation
 
