@@ -21,7 +21,7 @@ class Labyrinthe:
         self.noms_actions = ["Haut", "Bas", "Gauche", "Droite"]
         self.nb_actions = len(self.actions)
 
-        # Listes vides dans ce premier exercice : aucun obstacle pour l'instant.
+        #aucun obstacle pour l'instant.
         self.murs = []
         self.feux = []
 
