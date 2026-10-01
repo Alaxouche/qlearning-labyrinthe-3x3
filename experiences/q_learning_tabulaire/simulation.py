@@ -1,4 +1,7 @@
-"""Exemple : animer notre agent Q-learning dans le labyrinthe 3 x 3."""
+"""Point de départ de la simulation : construit les deux objets puis ouvre Tkinter.
+
+Commande depuis la racine : python -m experiences.q_learning_tabulaire.simulation
+"""
 
 from src.environnements.labyrinthe import Labyrinthe
 from src.algorithmes.tabulaire.q_learning import QLearning
@@ -6,6 +9,7 @@ from src.visualisation.simulation_labyrinthe import lancer_simulation
 
 
 def main():
+    """Prépare l'environnement et l'agent puis lance la fenêtre. Retour : aucun."""
     lab = Labyrinthe(taille=3)
 
     # Les hyperparamètres de cette expérience sont choisis ici.
@@ -20,6 +24,8 @@ def main():
         max_pas=30
     )
 
+    # On donne les DEUX objets à la visualisation : lab pour dessiner,
+    # agent pour apprendre puis choisir ses déplacements.
     lancer_simulation(lab, agent)
 
 

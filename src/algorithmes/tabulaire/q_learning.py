@@ -10,6 +10,8 @@ class QLearning:
         actions_possibles(etat) : liste des actions autorisées ;
         step(action) : (nouvel_etat, recompense, termine).
 
+    'self' désigne ici l'objet QLearning : self.Q est SA matrice Q,
+    et self.env pointe vers l'objet environnement reçu au constructeur.
     Les états et les actions sont représentés par des entiers commençant à 0.
     """
 
@@ -31,7 +33,7 @@ class QLearning:
         """
 
         # Paramètres de l'agent, conservés comme attributs de l'objet
-        self.env = environnement
+        self.env = environnement  # On conserve le même objet Labyrinthe (ou autre).
         self.alpha = alpha
         self.gamma = gamma
         self.epsilon = epsilon
@@ -58,11 +60,13 @@ class QLearning:
 
         Erreur : ValueError si aucune action n'est disponible.
         """
+        # Exemple pour l'état 0 d'une grille 3x3 : [1, 3] (bas, droite).
         # L'environnement décide quelles actions sont autorisées dans cet état.
         actions = list(self.env.actions_possibles(etat))
         if not actions:
             raise ValueError("Aucune action possible dans cet état.")
-        # argmax donne la position du maximum parmi les actions autorisées
+        # Q[etat, actions] sélectionne seulement les colonnes autorisées.
+        # argmax donne la POSITION du maximum dans cette sélection, pas l'action.
         indice = np.argmax(self.Q[etat, actions])
         return int(actions[indice])  # On renvoie le numéro de l'action, pas sa Q-value.
 
@@ -84,7 +88,8 @@ class QLearning:
             raise ValueError("Aucune action possible dans cet état.")
 
         # Tirage entre 0 et 1 : si le nombre est inférieur à epsilon, on explore
-        # Exemple : epsilon = 0.2 correspond à 20 % d'exploration aléatoire
+        # Exemple : epsilon = 0.2 correspond à 20 % de tirages aléatoires.
+        # Le reste du temps, on utilise la meilleure action connue.
         if np.random.random() < self.epsilon:
             return int(np.random.choice(actions))
 
@@ -115,6 +120,7 @@ class QLearning:
             for pas in range(self.max_pas):
                 action = self.choisir_action(etat)  # Exploration ou exploitation.
                 # L'environnement renvoie le nouvel état, la récompense et la fin éventuelle
+                # Exemple de réponse : (3, -0.1, False).
                 nouvel_etat, recompense, termine = self.env.step(action)
 
                 # La valeur future est nulle si l'épisode est terminé.
@@ -128,7 +134,8 @@ class QLearning:
                     else:
                         valeur_future = 0.0
 
-                # Cible de Bellman, puis mise à jour de la Q-value actuelle
+                # Cible = récompense immédiate + gamma * meilleure valeur future.
+                # La deuxième ligne corrige UNE seule case Q[etat, action].
                 cible = recompense + self.gamma * valeur_future  # r + gamma * max Q(s', a')
                 self.Q[etat, action] += self.alpha * (cible - self.Q[etat, action])
 

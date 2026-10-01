@@ -2,22 +2,32 @@ import tkinter as tk
 
 
 def lancer_simulation(lab, qlearning):
-    """Entraîne l'agent et affiche son parcours dans une fenêtre Tkinter."""
+    """Ouvre une fenêtre qui anime les décisions de l'agent déjà construit.
+
+    Paramètres :
+        lab : objet Labyrinthe à dessiner ;
+        qlearning : objet QLearning à entraîner et à utiliser.
+    Retour : aucun ; la fenêtre Tkinter reste ouverte jusqu'à sa fermeture.
+    Les petites fonctions ci-dessous sont internes à cette visualisation.
+    """
     TAILLE_FENETRE = 450  # en pixels, les cases s'adaptent a la taille du labyrinthe
     TAILLE_CASE = TAILLE_FENETRE // lab.taille
     DELAI = 400  # millisecondes entre deux pas
     
+    # Avant de montrer le robot, on entraîne la table Q.
     qlearning.apprendre()
     
-    etat = lab.depart
+    etat = lab.depart  # Position affichée à l'écran (variable de cette fonction).
     nb_pas = 0
     score = 0.0
     en_marche = False
     
     
     def dessiner():
+        """Efface et redessine la grille, le robot et le score. Retour : aucun."""
         canevas.delete("all")
     
+        # Chaque case est dessinée à la position (ligne, colonne) correspondante.
         for case in range(lab.nb_etats):
             ligne, colonne = divmod(case, lab.taille)
             x, y = colonne * TAILLE_CASE, ligne * TAILLE_CASE
@@ -37,6 +47,7 @@ def lancer_simulation(lab, qlearning):
                                      fill=couleur, outline="gray")
             canevas.create_text(x + 14, y + 14, text=str(case), fill="gray")
     
+        # Après la grille, on dessine le robot au centre de sa case actuelle.
         ligne, colonne = divmod(etat, lab.taille)
         x = colonne * TAILLE_CASE + TAILLE_CASE / 2
         y = ligne * TAILLE_CASE + TAILLE_CASE / 2
@@ -47,11 +58,14 @@ def lancer_simulation(lab, qlearning):
     
     
     def avancer():
+        """Effectue UNE action apprise et programme le prochain pas si nécessaire."""
+        # nonlocal : ces variables viennent de lancer_simulation(), pas d'avancer().
         nonlocal etat, nb_pas, score, en_marche
     
         if not en_marche:
             return
     
+        # On exécute la meilleure action de l'agent dans le labyrinthe.
         etat = lab.etat_suivant(etat, qlearning.meilleure_action(etat))
         nb_pas += 1
         score += lab.recompense(etat)
@@ -61,10 +75,11 @@ def lancer_simulation(lab, qlearning):
         if etat == lab.arrivee or nb_pas >= qlearning.max_pas:
             en_marche = False
         else:
-            fenetre.after(DELAI, avancer)
+            fenetre.after(DELAI, avancer)  # Rappelle avancer() après DELAI ms.
     
     
     def demarrer():
+        """Démarre l'animation quand on clique sur le bouton Démarrer."""
         nonlocal en_marche
     
         if not en_marche and etat != lab.arrivee:
@@ -73,6 +88,7 @@ def lancer_simulation(lab, qlearning):
     
     
     def recommencer():
+        """Replace le robot au départ et remet le compteur et le score à zéro."""
         nonlocal etat, nb_pas, score, en_marche
     
         en_marche = False
@@ -80,6 +96,7 @@ def lancer_simulation(lab, qlearning):
         dessiner()
     
     
+    # Construction des éléments visibles de la fenêtre.
     fenetre = tk.Tk()
     fenetre.title("Q-learning labyrinthe")
     
@@ -94,5 +111,5 @@ def lancer_simulation(lab, qlearning):
     tk.Button(fenetre, text="Recommencer", command=recommencer).pack(side="right", padx=20, pady=10)
     
     dessiner()
-    fenetre.mainloop()
+    fenetre.mainloop()  # Attend les clics de l'utilisateur jusqu'à fermeture.
     
