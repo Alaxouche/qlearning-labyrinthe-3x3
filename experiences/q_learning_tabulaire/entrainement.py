@@ -1,14 +1,15 @@
 """Point de départ de l'expérience : création du labyrinthe et de l'agent.
 
-Commande depuis la racine : python -m experiences.q_learning_tabulaire.entrainement
+Commande depuis la racine : py -m experiences.q_learning_tabulaire.entrainement
 """
 
 from src.environnements.labyrinthe import Labyrinthe
 from src.algorithmes.tabulaire.q_learning import QLearning
+from src.visualisation.simulation_labyrinthe import lancer_simulation
 
 
 def main():
-    """Crée les deux objets, entraîne l'agent et affiche le résultat. Retour : aucun."""
+    """Entraîne une fois, affiche la table Q, le chemin et la simulation. Retour : aucun."""
     # 1. Création du problème : un labyrinthe de taille 3 x 3
     lab = Labyrinthe(taille=3)
 
@@ -51,6 +52,10 @@ def main():
             break
 
     print("\nChemin suivi :", " -> ".join(map(str, chemin)))
+
+    # 6. Ouvrir la fenêtre avec le MÊME agent et sa table Q déjà entraînée.
+    # On ne recrée pas QLearning et on ne relance pas apprendre().
+    lancer_simulation(lab, agent)
 
 
 # Ce bloc lance main() seulement si l'on exécute ce fichier comme programme.
