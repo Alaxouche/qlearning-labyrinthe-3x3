@@ -18,7 +18,7 @@ reinforcement-learning-robotics/
 │       └── simulation_labyrinthe.py     # Animation Tkinter réutilisable
 ├── experiences/
 │   └── q_learning_tabulaire/
-│       └── entrainement.py              # Paramètres, apprentissage, résultats, animation
+│       └── entrainement.py              # Création de l'agent et lancement de l'apprentissage
 ├── requirements.txt
 ├── README.md
 └── .gitignore
@@ -57,14 +57,14 @@ python -m pip install -r requirements.txt
 
 ## Exécution
 
-Une seule commande pour entraîner l'agent, afficher sa table Q, son chemin et ouvrir la simulation Tkinter (sans second entraînement) :
+Pour créer le labyrinthe et l'agent, puis lancer l'entraînement (sans affichage ni animation) :
 
 ```bash
 py -m experiences.q_learning_tabulaire.entrainement
 ```
 
 
-La fenêtre propose les boutons **Démarrer** et **Recommencer**.
+Le module `src/visualisation/simulation_labyrinthe.py` contient la fonction d'animation Tkinter ; le script d'entraînement ne la lance pas automatiquement.
 
 ## Progression envisagée
 
