@@ -45,6 +45,29 @@ L'état final n'a pas de valeur future. La sélection des actions utilise une st
 
 Les hyperparamètres sont indiqués explicitement dans l'unique script d'expérience (et non fixés par défaut dans la classe `QLearning`). Dans cet exemple : `alpha=0.1`, `gamma=0.9`, `epsilon=1.0`, `epsilon_min=0.05`, `decroissance=0.99`, `nb_episodes=1000` et `max_pas=30`. L'environnement fournit `nb_etats`, `nb_actions`, `reset()`, `actions_possibles(etat)` et `step(action)`.
 
+## Déroulement d'un épisode d'apprentissage
+
+Le fichier `experiences/q_learning_tabulaire/entrainement.py` crée le labyrinthe et l'agent, puis appelle `agent.apprendre()`. C'est cette méthode, définie dans `q_learning.py`, qui réalise l'entraînement. Un **épisode** correspond à une partie, depuis le départ jusqu'à sa fin.
+
+1. **Réinitialisation — `etat = self.env.reset()`**  
+   L'agent demande à l'environnement de replacer le robot au départ (case 0 pour notre grille 3 × 3). Le score cumulé de cet épisode est initialisé à zéro.
+
+2. **Choix d'une action — `action = self.choisir_action(etat)`**  
+   L'agent interroge l'environnement sur les actions autorisées et applique la stratégie *epsilon-greedy* : soit une action aléatoire (exploration), soit la meilleure action connue dans sa table Q (exploitation).
+
+3. **Exécution du déplacement — `nouvel_etat, recompense, termine = self.env.step(action)`**  
+   Le labyrinthe exécute l'action choisie et renvoie trois informations : la nouvelle case, la récompense obtenue et un booléen indiquant si l'arrivée est atteinte. Par exemple, descendre de la case 0 à la case 3 renvoie `(3, -0.1, False)`.
+
+4. **Apprentissage — mise à jour de la table Q par Bellman**  
+   L'agent calcule la meilleure valeur future parmi les actions autorisées au nouvel état (valeur nulle si l'épisode est terminé), puis corrige **une seule case**, `Q[etat, action]`, selon la formule présentée plus haut.
+
+5. **Répétition ou fin de l'épisode**  
+   L'agent ajoute la récompense au score cumulé, remplace `etat` par `nouvel_etat`, puis choisit une autre action. L'épisode s'arrête lorsque l'arrivée est atteinte, qu'aucune action n'est possible ou que le nombre maximal de déplacements (`max_pas`) est atteint.
+
+**Après chaque épisode :** le score cumulé est enregistré dans `self.recompenses` et la probabilité d'exploration `epsilon` diminue progressivement sans passer sous `epsilon_min`. Un nouvel épisode repart ensuite de la case de départ. Dans notre exemple, ce processus est répété `nb_episodes = 1000` fois.
+
+**Répartition des rôles :** `Labyrinthe` gère les règles et les déplacements ; `QLearning` choisit les actions et actualise les connaissances de l'agent.
+
 ## Installation
 
 Prérequis : Python 3 et Tkinter (généralement inclus dans Python sur Windows).
