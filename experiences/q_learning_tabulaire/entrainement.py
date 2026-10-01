@@ -1,6 +1,6 @@
 """Première expérience : apprentissage sur un labyrinthe 3 x 3."""
 from src.environnements.labyrinthe import Labyrinthe
-from src.agents.q_learning import QLearning
+from src.algorithmes.tabulaire.q_learning import QLearning
 
 
 def main():
