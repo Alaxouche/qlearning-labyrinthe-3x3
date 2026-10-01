@@ -26,7 +26,7 @@ reinforcement-learning-robotics/
 └── README.md
 ```
 
-Chaque sous-dossier Python est un package. Les commandes ci-dessous sont à exécuter **depuis la racine du dépôt**.
+Les dossiers Python sont organisés en modules (packages implicites sous Python 3). Les commandes ci-dessous sont à exécuter **depuis la racine du dépôt**.
 
 ## Première expérience : labyrinthe 3 × 3
 
@@ -100,4 +100,4 @@ La fenêtre Tkinter propose **Démarrer** pour visualiser le parcours de l'agent
 - [ ] Environnements de navigation plus complexes
 - [ ] Expérimentations orientées robotique
 
-Les étapes non cochées sont des perspectives, **pas des fonctionnalités déjà implémentées**.
+Les étapes non cochées sont des perspectives, **pas des fonctionnalités déjà implémentées**. Les dossiers de résultats et de documentation seront créés lorsqu'ils accueilleront de véritables contenus.
