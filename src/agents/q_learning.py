@@ -1,8 +1,5 @@
 import numpy as np
 
-from labyrinthe import Labyrinthe
-
-
 class QLearning:
     """Apprentissage par Q-learning qui fonctionne avec n'importe quel
     labyrinthe respectant le modele de la classe Labyrinthe."""
