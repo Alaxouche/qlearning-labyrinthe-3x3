@@ -6,7 +6,7 @@ def lancer_simulation(lab, qlearning):
 
     Paramètres :
         lab : objet Labyrinthe à dessiner ;
-        qlearning : objet QLearning à entraîner et à utiliser.
+        qlearning : objet QLearning déjà entraîné ; sa table Q est réutilisée.
     Retour : aucun ; la fenêtre Tkinter reste ouverte jusqu'à sa fermeture.
     Les petites fonctions ci-dessous sont internes à cette visualisation.
     """
@@ -14,10 +14,8 @@ def lancer_simulation(lab, qlearning):
     TAILLE_CASE = TAILLE_FENETRE // lab.taille
     DELAI = 400  # millisecondes entre deux pas
     
-    # Avant de montrer le robot, on entraîne la table Q.
-    qlearning.apprendre()
-    
-    etat = lab.depart  # Position affichée à l'écran (variable de cette fonction).
+    # On réutilise l'agent déjà entraîné dans entrainement.py : pas de nouvel apprentissage.
+    etat = lab.reset()  # La position affichée correspond à la position réelle du labyrinthe.
     nb_pas = 0
     score = 0.0
     en_marche = False
@@ -66,13 +64,14 @@ def lancer_simulation(lab, qlearning):
             return
     
         # On exécute la meilleure action de l'agent dans le labyrinthe.
-        etat = lab.etat_suivant(etat, qlearning.meilleure_action(etat))
+        action = qlearning.meilleure_action(etat)
+        etat, recompense, termine = lab.step(action)
         nb_pas += 1
-        score += lab.recompense(etat)
+        score += recompense
         dessiner()
     
         # On s'arrete a l'arrivee, ou si l'agent tourne en rond trop longtemps
-        if etat == lab.arrivee or nb_pas >= qlearning.max_pas:
+        if termine or nb_pas >= qlearning.max_pas:
             en_marche = False
         else:
             fenetre.after(DELAI, avancer)  # Rappelle avancer() après DELAI ms.
@@ -92,7 +91,7 @@ def lancer_simulation(lab, qlearning):
         nonlocal etat, nb_pas, score, en_marche
     
         en_marche = False
-        etat, nb_pas, score = lab.depart, 0, 0.0
+        etat, nb_pas, score = lab.reset(), 0, 0.0
         dessiner()
     
     
