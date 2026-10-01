@@ -20,6 +20,7 @@ def lancer_simulation(lab, agent):
     generateur = agent.apprendre_pas_a_pas()
     mode = "entrainement"
     lecture_auto = False
+    rappel_auto = None  # Identifiant du prochain appel Tkinter, annulable avec Pause.
     fini_entrainement = False
     nb_pas = 0
     score = 0.0
@@ -207,37 +208,41 @@ def lancer_simulation(lab, agent):
         return False
 
     def pas_suivant():
-        """Avance manuellement d'un événement, sans démarrer une boucle."""
-        nonlocal lecture_auto
-        lecture_auto = False
+        """Avance manuellement d’un événement sans laisser de rappel automatique."""
+        arreter()
         prochain_evenement()
 
     def boucle_auto():
         """Planifie le prochain mouvement sans bloquer la fenêtre Tkinter."""
+        nonlocal rappel_auto
+        rappel_auto = None  # Le rappel courant vient de se déclencher.
         if not lecture_auto:
             return
         encore = prochain_evenement()
         if encore:
-            fenetre.after(vitesse.get(), boucle_auto)
+            rappel_auto = fenetre.after(vitesse.get(), boucle_auto)
         else:
             arreter()
 
     def demarrer_auto():
-        nonlocal lecture_auto
+        nonlocal lecture_auto, rappel_auto
         if not lecture_auto and (mode == "parcours" or not fini_entrainement):
             lecture_auto = True
-            fenetre.after(0, boucle_auto)
+            rappel_auto = fenetre.after(0, boucle_auto)
 
     def arreter():
-        nonlocal lecture_auto
+        nonlocal lecture_auto, rappel_auto
         lecture_auto = False
+        if rappel_auto is not None:
+            fenetre.after_cancel(rappel_auto)
+            rappel_auto = None
 
     def parcours_appris():
         """Passe au test : on conserve les valeurs apprises et repart de zéro."""
         nonlocal mode, nb_pas, score, etat_affiche, lecture_auto
         if not fini_entrainement:
             return
-        lecture_auto = False
+        arreter()  # Annule aussi un éventuel rappel de l’ancien mode.
         mode = "parcours"
         etat_affiche = lab.reset()
         nb_pas, score = 0, 0.0
