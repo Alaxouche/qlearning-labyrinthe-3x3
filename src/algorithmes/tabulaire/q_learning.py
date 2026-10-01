@@ -37,6 +37,7 @@ class QLearning:
         self.alpha = alpha
         self.gamma = gamma
         self.epsilon = epsilon
+        self.epsilon_initial = epsilon  # Utile pour relancer une démonstration à zéro.
         self.epsilon_min = epsilon_min
         self.decroissance = decroissance
         self.nb_episodes = nb_episodes
@@ -96,58 +97,92 @@ class QLearning:
         # Sinon, on exploite la meilleure action actuellement connue
         return self.meilleure_action(etat)
 
-    def apprendre(self):
-        """Entraîne l'agent pendant nb_episodes épisodes.
+    def apprendre_pas_a_pas(self):
+        """Générateur : produit les événements de l'apprentissage, un par un.
 
-        À chaque pas : choix d'une action, interaction avec l'environnement,
-        calcul de la cible de Bellman et mise à jour d'une case de la table Q.
+        Chaque appel à next() fait progresser l'algorithme jusqu'au prochain
+        événement. Tkinter peut ainsi montrer chaque mouvement sans bloquer
+        la fenêtre. C'est LA même formule de Bellman que pour apprendre().
 
-        Retour :
-            np.ndarray : la table Q obtenue après l'entraînement.
-
-        Effets sur l'objet :
-            self.Q est modifiée, self.recompenses contient le score total
-            de chaque épisode et self.epsilon diminue progressivement.
+        Événements renvoyés avec yield :
+            "pas" : action, transition, récompense, Q avant/après ;
+            "fin_episode" : score et nouvel epsilon ;
+            "fin" : tous les épisodes sont terminés.
         """
-        self.recompenses = []  # On recommence l'historique des scores.
+        self.recompenses = []
 
-        # Boucle extérieure : une répétition correspond à un épisode complet.
         for episode in range(self.nb_episodes):
-            etat = self.env.reset()  # Nouvel épisode : retour à l'état initial
-            total = 0.0  # Somme des récompenses de cet épisode.
+            etat = self.env.reset()  # Retour à la case de départ.
+            total = 0.0
 
-            # Boucle intérieure : on limite le nombre de décisions par épisode.
             for pas in range(self.max_pas):
-                action = self.choisir_action(etat)  # Exploration ou exploitation.
-                # L'environnement renvoie le nouvel état, la récompense et la fin éventuelle
-                # Exemple de réponse : (3, -0.1, False).
+                if not self.env.actions_possibles(etat):
+                    break
+
+                etat_depart = etat  # On garde une copie pour expliquer la transition.
+                action = self.choisir_action(etat)
+                q_avant = float(self.Q[etat, action])
+
+                # Le labyrinthe exécute l'action et renvoie ses trois informations.
                 nouvel_etat, recompense, termine = self.env.step(action)
 
-                # La valeur future est nulle si l'épisode est terminé.
+                # S'il n'y a pas de suite, le meilleur gain futur vaut zéro.
                 if termine:
                     valeur_future = 0.0
                 else:
-                    # On ne compare que les actions permises depuis le nouvel état.
                     actions_futures = list(self.env.actions_possibles(nouvel_etat))
                     if actions_futures:
-                        valeur_future = np.max(self.Q[nouvel_etat, actions_futures])
+                        valeur_future = float(np.max(self.Q[nouvel_etat, actions_futures]))
                     else:
                         valeur_future = 0.0
 
-                # Cible = récompense immédiate + gamma * meilleure valeur future.
-                # La deuxième ligne corrige UNE seule case Q[etat, action].
-                cible = recompense + self.gamma * valeur_future  # r + gamma * max Q(s', a')
+                # Une seule case de Q est corrigée selon Bellman.
+                cible = recompense + self.gamma * valeur_future
                 self.Q[etat, action] += self.alpha * (cible - self.Q[etat, action])
+                q_apres = float(self.Q[etat, action])
 
                 total += recompense
-                etat = nouvel_etat  # Le déplacement suivant partira de cet état
+                etat = nouvel_etat
 
-                # On arrête si l'épisode est fini ou s'il n'existe plus d'action
-                if termine or (not self.env.actions_possibles(etat)):
+                # yield fournit les détails au programme qui visualise l'épisode.
+                # L'exécution reprend juste après ce yield au prochain next().
+                yield {
+                    "type": "pas",
+                    "episode": episode + 1,
+                    "pas": pas + 1,
+                    "etat_depart": etat_depart,
+                    "action": action,
+                    "nouvel_etat": nouvel_etat,
+                    "recompense": recompense,
+                    "termine": termine,
+                    "total": total,
+                    "epsilon": self.epsilon,
+                    "cible": float(cible),
+                    "q_avant": q_avant,
+                    "q_apres": q_apres
+                }
+
+                if termine or not self.env.actions_possibles(etat):
                     break
 
-            self.recompenses.append(total)  # Un score sauvegardé par épisode.
-            # Exploration progressivement réduite, sans descendre sous epsilon_min
+            self.recompenses.append(total)
             self.epsilon = max(self.epsilon_min, self.epsilon * self.decroissance)
+            yield {
+                "type": "fin_episode",
+                "episode": episode + 1,
+                "total": total,
+                "epsilon": self.epsilon
+            }
+
+        yield {"type": "fin"}
+
+    def apprendre(self):
+        """Entraîne normalement, sans animation ; retourne la matrice Q.
+
+        On consomme simplement tous les événements du générateur précédent.
+        Ainsi les deux modes utilisent STRICTEMENT le même algorithme.
+        """
+        for evenement in self.apprendre_pas_a_pas():
+            pass
 
         return self.Q
