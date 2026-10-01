@@ -51,7 +51,7 @@ class LabyrintheAleatoire(Labyrinthe):
     """
 
     def __init__(self, taille, nb_murs, nb_feux=0, graine=None):
-        super().__init__(taille)
+        Labyrinthe.__init__(self, taille)
         rng = random.Random(graine)
         cases_libres = [c for c in range(self.nb_etats) if c not in (self.depart, self.arrivee)]
 
@@ -63,11 +63,11 @@ class LabyrintheAleatoire(Labyrinthe):
                 break
 
     def etat_suivant(self, etat, action):
-        suivant = super().etat_suivant(etat, action)
+        suivant = Labyrinthe.etat_suivant(self, etat, action)
         return etat if suivant in self.murs else suivant  # un mur bloque comme un bord
 
     def recompense(self, etat):
-        return -10.0 if etat in self.feux else super().recompense(etat)
+        return -10.0 if etat in self.feux else Labyrinthe.recompense(self, etat)
 
     def arrivee_accessible(self):
         a_visiter, vus = [self.depart], {self.depart}
