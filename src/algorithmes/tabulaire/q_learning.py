@@ -186,3 +186,70 @@ class QLearning:
             pass
 
         return self.Q
+
+    # =====================================================================
+    # ANCIENNE VERSION DE apprendre(self) — POUR EXPLICATION AU PROFESSEUR
+    # =====================================================================
+    # Cette version effectue directement tous les épisodes dans une boucle.
+    # Elle ne fournit aucun événement intermédiaire à Tkinter : une animation
+    # en direct ne pourrait pas suivre chaque déplacement pendant l'exécution.
+    # Aujourd'hui, apprendre_pas_a_pas() reprend le même calcul de Bellman,
+    # mais utilise yield pour transmettre les événements un par un à Tkinter.
+    # Le code ci-dessous est une ARCHIVE COMMENTÉE : il ne s'exécute pas.
+    # Pour présenter la démarche, enlever mentalement les « # » ci-dessous.
+    #
+    # def apprendre(self):
+    #     """Entraîne l'agent pendant nb_episodes épisodes.
+    #
+    #     À chaque pas : choix d'une action, interaction avec l'environnement,
+    #     calcul de la cible de Bellman et mise à jour d'une case de la table Q.
+    #
+    #     Retour :
+    #         np.ndarray : la table Q obtenue après l'entraînement.
+    #
+    #     Effets sur l'objet :
+    #         self.Q est modifiée, self.recompenses contient le score total
+    #         de chaque épisode et self.epsilon diminue progressivement.
+    #     """
+    #     self.recompenses = []  # On recommence l'historique des scores.
+    #
+    #     # Boucle extérieure : une répétition correspond à un épisode complet.
+    #     for episode in range(self.nb_episodes):
+    #         etat = self.env.reset()  # Nouvel épisode : retour à l'état initial
+    #         total = 0.0  # Somme des récompenses de cet épisode.
+    #
+    #         # Boucle intérieure : on limite le nombre de décisions par épisode.
+    #         for pas in range(self.max_pas):
+    #             action = self.choisir_action(etat)  # Exploration ou exploitation.
+    #             # L'environnement renvoie le nouvel état, la récompense et la fin éventuelle
+    #             # Exemple de réponse : (3, -0.1, False).
+    #             nouvel_etat, recompense, termine = self.env.step(action)
+    #
+    #             # La valeur future est nulle si l'épisode est terminé.
+    #             if termine:
+    #                 valeur_future = 0.0
+    #             else:
+    #                 # On ne compare que les actions permises depuis le nouvel état.
+    #                 actions_futures = list(self.env.actions_possibles(nouvel_etat))
+    #                 if actions_futures:
+    #                     valeur_future = np.max(self.Q[nouvel_etat, actions_futures])
+    #                 else:
+    #                     valeur_future = 0.0
+    #
+    #             # Cible = récompense immédiate + gamma * meilleure valeur future.
+    #             # La deuxième ligne corrige UNE seule case Q[etat, action].
+    #             cible = recompense + self.gamma * valeur_future  # r + gamma * max Q(s', a')
+    #             self.Q[etat, action] += self.alpha * (cible - self.Q[etat, action])
+    #
+    #             total += recompense
+    #             etat = nouvel_etat  # Le déplacement suivant partira de cet état
+    #
+    #             # On arrête si l'épisode est fini ou s'il n'existe plus d'action
+    #             if termine or (not self.env.actions_possibles(etat)):
+    #                 break
+    #
+    #         self.recompenses.append(total)  # Un score sauvegardé par épisode.
+    #         # Exploration progressivement réduite, sans descendre sous epsilon_min
+    #         self.epsilon = max(self.epsilon_min, self.epsilon * self.decroissance)
+    #
+    #     return self.Q
