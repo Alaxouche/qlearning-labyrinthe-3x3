@@ -13,8 +13,8 @@ class QLearning:
     Les états et les actions sont représentés par des entiers commençant à 0.
     """
 
-    def __init__(self, environnement, alpha=0.1, gamma=0.9, epsilon=1.0,
-                 epsilon_min=0.05, decroissance=0.99, nb_episodes=1000, max_pas=200):
+    def __init__(self, environnement, alpha, gamma, epsilon,
+                 epsilon_min, decroissance, nb_episodes, max_pas):
         """Initialise les paramètres et une table Q remplie de zéros.
 
         Paramètres :
