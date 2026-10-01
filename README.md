@@ -47,7 +47,7 @@ Les hyperparamètres sont indiqués explicitement dans l'unique script d'expéri
 
 ## Déroulement d'un épisode d'apprentissage
 
-Le fichier `experiences/q_learning_tabulaire/entrainement.py` crée le labyrinthe et l'agent, puis appelle `agent.apprendre()`. C'est cette méthode, définie dans `q_learning.py`, qui réalise l'entraînement. Un **épisode** correspond à une partie, depuis le départ jusqu'à sa fin.
+Le fichier `experiences/q_learning_tabulaire/entrainement.py` crée le labyrinthe et l'agent, puis lance `agent.apprendre()` (mode classique) ou ouvre Tkinter (option `--visuel`). Les deux modes utilisent le même générateur `agent.apprendre_pas_a_pas()`, défini dans `q_learning.py` : en mode classique, `apprendre()` consomme tous les événements sans affichage ; en mode visuel, Tkinter les traite un par un. Un **épisode** correspond à une partie, depuis le départ jusqu'à sa fin.
 
 1. **Réinitialisation — `etat = self.env.reset()`**  
    L'agent demande à l'environnement de replacer le robot au départ (case 0 pour notre grille 3 × 3). Le score cumulé de cet épisode est initialisé à zéro.
@@ -80,14 +80,25 @@ python -m pip install -r requirements.txt
 
 ## Exécution
 
-Pour créer le labyrinthe et l'agent, puis lancer l'entraînement (sans affichage ni animation) :
+Pour lancer l'entraînement classique, sans fenêtre :
 
 ```bash
 py -m experiences.q_learning_tabulaire.entrainement
 ```
 
+Pour ouvrir **la fenêtre pédagogique avec les deux modes** (sans changer les hyperparamètres) :
 
-Le module `src/visualisation/simulation_labyrinthe.py` contient la fonction d'animation Tkinter ; le script d'entraînement ne la lance pas automatiquement.
+```bash
+py -m experiences.q_learning_tabulaire.entrainement --visuel
+```
+
+### Fonctionnement de l'animation Tkinter
+
+**Mode 1 — Entraînement en direct :** les boutons « Pas suivant », « Lecture auto » et « Pause » permettent de suivre chaque événement du générateur. La fenêtre affiche la case du robot, le numéro de l'épisode et du pas, l'action retenue, la récompense, le score cumulé, epsilon, la cible de Bellman et **Q avant / Q après**. La table Q et le journal des décisions se mettent à jour progressivement. Le réglage du délai accélère ou ralentit la lecture automatique. Une fin d'épisode apparaît également dans le journal. L'interface reste réactive grâce à `fenetre.after()`.
+
+**Mode 2 — Parcours après apprentissage :** une fois les épisodes terminés, le bouton « Parcours appris » devient disponible. Le robot repart du départ et suit `agent.meilleure_action(etat)` à chaque déplacement, sans exploration et **sans modifier la table Q**. On peut avancer manuellement, laisser défiler automatiquement, mettre en pause ou recommencer le parcours. La visualisation utilise le **même agent entraîné** : aucun second entraînement n'est lancé.
+
+La fonction Tkinter est conservée dans `src/visualisation/simulation_labyrinthe.py` pour séparer les calculs du Q-learning de l'affichage.
 
 ## Progression envisagée
 
