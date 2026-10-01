@@ -7,7 +7,7 @@ Le **labyrinthe** est notre premier environnement d'expérimentation, pas la fin
 ## Architecture actuelle
 
 ```text
-qlearning-labyrinthe-3x3/
+reinforcement-learning-robotics/
 ├── src/
 │   ├── environnements/
 │   │   └── labyrinthe.py                # Grille, actions, transitions, récompenses
@@ -18,8 +18,7 @@ qlearning-labyrinthe-3x3/
 │       └── simulation_labyrinthe.py     # Animation Tkinter réutilisable
 ├── experiences/
 │   └── q_learning_tabulaire/
-│       ├── entrainement.py              # Lance l'apprentissage 3 × 3
-│       └── simulation.py                # Lance la simulation du même exemple
+│       └── entrainement.py              # Paramètres, apprentissage, résultats, animation
 ├── requirements.txt
 ├── README.md
 └── .gitignore
@@ -44,31 +43,26 @@ Q(s,a) <- Q(s,a) + alpha * (r + gamma * max_a' Q(s',a') - Q(s,a))
 
 L'état final n'a pas de valeur future. La sélection des actions utilise une stratégie **epsilon-greedy** avec décroissance de l'exploration.
 
-Les hyperparamètres sont indiqués explicitement dans chaque script d'expérience (et non fixés par défaut dans la classe `QLearning`). Dans cet exemple : `alpha=0.1`, `gamma=0.9`, `epsilon=1.0`, `epsilon_min=0.05`, `decroissance=0.99`, `nb_episodes=1000` et `max_pas=30`. L'environnement fournit `nb_etats`, `nb_actions`, `reset()`, `actions_possibles(etat)` et `step(action)`.
+Les hyperparamètres sont indiqués explicitement dans l'unique script d'expérience (et non fixés par défaut dans la classe `QLearning`). Dans cet exemple : `alpha=0.1`, `gamma=0.9`, `epsilon=1.0`, `epsilon_min=0.05`, `decroissance=0.99`, `nb_episodes=1000` et `max_pas=30`. L'environnement fournit `nb_etats`, `nb_actions`, `reset()`, `actions_possibles(etat)` et `step(action)`.
 
 ## Installation
 
 Prérequis : Python 3 et Tkinter (généralement inclus dans Python sur Windows).
 
 ```bash
-git clone https://github.com/Alaxouche/qlearning-labyrinthe-3x3.git
-cd qlearning-labyrinthe-3x3
+git clone https://github.com/Alaxouche/reinforcement-learning-robotics.git
+cd reinforcement-learning-robotics
 python -m pip install -r requirements.txt
 ```
 
 ## Exécution
 
-Entraîner l'agent, afficher sa table Q et son chemin :
+Une seule commande pour entraîner l'agent, afficher sa table Q, son chemin et ouvrir la simulation Tkinter (sans second entraînement) :
 
 ```bash
-python -m experiences.q_learning_tabulaire.entrainement
+py -m experiences.q_learning_tabulaire.entrainement
 ```
 
-Afficher l'animation Tkinter de l'agent entraîné :
-
-```bash
-python -m experiences.q_learning_tabulaire.simulation
-```
 
 La fenêtre propose les boutons **Démarrer** et **Recommencer**.
 
@@ -83,4 +77,4 @@ La fenêtre propose les boutons **Démarrer** et **Recommencer**.
 
 À mesure que le projet progressera, les nouveaux algorithmes seront ajoutés dans `src/algorithmes/` (par exemple `profond/dqn.py`) et leurs protocoles dans `experiences/`. **Aucun fichier DQN fictif n'est créé à ce stade.**
 
-> Le titre du projet a été élargi ; le nom et l'URL du dépôt GitHub restent inchangés tant que son propriétaire ne les modifie pas.
+> Les modifications pédagogiques de cette version sont effectuées sur la branche `hammou-qlearning`, indépendamment de `main`.
