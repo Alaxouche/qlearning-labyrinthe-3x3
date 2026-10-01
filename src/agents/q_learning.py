@@ -73,15 +73,3 @@ class QLearning:
                 meilleure = self.lab.noms_actions[int(np.argmax(self.Q[etat]))]
             valeurs = "".join("{:10.3f}".format(v) for v in self.Q[etat])
             print("{:4d}{}   {}".format(etat, valeurs, meilleure))
-
-
-if __name__ == "__main__":
-    # Pour changer de labyrinthe, il suffit de changer ces deux lignes.
-    # Exemple pour un grand labyrinthe : QLearning(lab, nb_episodes=2000, max_pas=200)
-    lab = Labyrinthe(3)
-    qlearning = QLearning(lab)
-
-    qlearning.apprendre()
-    qlearning.afficher_q()
-    print()
-    print("chemin :", qlearning.chemin())
